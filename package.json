@@ -1,0 +1,25 @@
+{
+  "name": "create_dummy_db_data",
+  "version": "1.0.0",
+  "description": "Application to create dummy records in database",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gokulakrishna9/create_dummy_db_data.git"
+  },
+  "keywords": [
+    "dummy",
+    "records",
+    "testing",
+    "performance"
+  ],
+  "author": "Gokula Krishna G",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/gokulakrishna9/create_dummy_db_data/issues"
+  },
+  "homepage": "https://github.com/gokulakrishna9/create_dummy_db_data#readme"
+}
