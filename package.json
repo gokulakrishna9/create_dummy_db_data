@@ -21,5 +21,11 @@
   "bugs": {
     "url": "https://github.com/gokulakrishna9/create_dummy_db_data/issues"
   },
-  "homepage": "https://github.com/gokulakrishna9/create_dummy_db_data#readme"
+  "homepage": "https://github.com/gokulakrishna9/create_dummy_db_data#readme",
+  "dependencies": {
+    "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
 }
