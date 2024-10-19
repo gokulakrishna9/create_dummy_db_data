@@ -5,7 +5,7 @@ const myc_pool = function (datb = '') {
     user: 'root',
     password: '',
     database: datb,
-    port: 3308,
+    port: 3306,
     connectionLimit: 2500,
     queueLimit: 15000
     /*

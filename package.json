@@ -23,7 +23,10 @@
   },
   "homepage": "https://github.com/gokulakrishna9/create_dummy_db_data#readme",
   "dependencies": {
-    "express": "^4.21.1"
+    "async": "^3.2.6",
+    "express": "^4.21.1",
+    "lodash": "^4.17.21",
+    "mysql": "^2.18.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"

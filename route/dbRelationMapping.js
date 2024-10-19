@@ -1,7 +1,19 @@
 const express = require("express");
 const router = express.Router();
+const dbMeta = require("../database_metadata_pipeline/generate_metadata");
 
 // keep the UI simple
+router.get("/get_database_meta", function (req, res, next) {
+  dbMeta("", (err, rslt) => {
+    res.setHeader("Content-Type", "application/json");
+    res.end(
+      JSON.stringify({
+        rslt
+      })
+    );
+  });
+});
+
 // get database
 router.get("/get_database_list", function (req, res, next) {
   res.setHeader("Content-Type", "application/json");
@@ -61,3 +73,5 @@ router.get("/add_relation", function (req, res, next) {
     })
   );
 });
+
+module.exports = router;
