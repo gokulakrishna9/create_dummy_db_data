@@ -26,7 +26,8 @@
     "async": "^3.2.6",
     "express": "^4.21.1",
     "lodash": "^4.17.21",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "voca": "^1.4.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"
