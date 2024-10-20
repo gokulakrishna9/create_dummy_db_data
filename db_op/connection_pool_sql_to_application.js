@@ -20,4 +20,17 @@ const myc_pool = function (datb = '') {
   })
 };
 
+const knex = require('knex')({
+  client: 'mysql',
+  connection: {
+    host: '127.0.0.1',
+    port: 3306,
+    user: 'root',
+    password: '',
+    database: 'code_writer',
+  },
+  pool: { min: 0, max: 7 },
+});
+
 module.exports = myc_pool;
+module.exports = knex

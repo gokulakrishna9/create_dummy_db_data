@@ -2,7 +2,7 @@
 const async = require("async")
 const {getDBSchema} = require("../db_op/db_op");
 const {columnRelation} = require("../util/string_functions");
-
+const knex = require("../db_op/connection_pool_sql_to_application");
 /**
  {"TABLE_CATALOG":"def","TABLE_SCHEMA":"health4all","TABLE_NAME":"activity_done","COLUMN_NAME":"activity_done_id","ORDINAL_POSITION":1,"COLUMN_DEFAULT":null,"IS_NULLABLE":"NO","DATA_TYPE":"int","CHARACTER_MAXIMUM_LENGTH":null,"CHARACTER_OCTET_LENGTH":null,"NUMERIC_PRECISION":10,"NUMERIC_SCALE":0,"DATETIME_PRECISION":null,"CHARACTER_SET_NAME":null,"COLLATION_NAME":null,"COLUMN_TYPE":"int","COLUMN_KEY":"PRI","EXTRA":"auto_increment","PRIVILEGES":"select,insert,update,references","COLUMN_COMMENT":"","GENERATION_EXPRESSION":"","SRS_ID":null,"relatedTo":[]},
 */
@@ -73,6 +73,48 @@ function reduceColumnFeatureSize(colList, clbMain) {
     clbMain(null, colList);
   })
 }
+
+function writeToDB(dbList, finalClb) {
+  async.waterfall([
+    function(callback) {
+      // create database record
+      knex('database_meta').insert({database_name: dbList[0].database_name}).then((err, rslt) => {
+        if(err) {
+          console.log('Error');
+          console.log(err);
+          callback(err, null);
+        } else {
+          console.log('Insert ID');
+          console.log(rslt);
+          callback(null, rslt);
+        }
+      });
+    },
+    /*
+    function(callback, dbList) {
+      // create table records
+      async.map(dbList, (db, clb), (err, dbList) => {
+        callback(null, dbList);
+      });
+    },
+    function(callback, dbList) {
+      // create column records
+      async.map(dbList, (db, clb), (err, dbList) => {
+        callback(null, dbList);
+      });
+    },
+    function(callback, dbList) {
+      // create relation records
+      async.map(dbList, (db, clb), (err, dbList) => {
+        callback(null, dbList);
+      });
+    }
+    */
+  ], (err, rslt) => {
+    finalClb(null, rslt);
+  });
+}
+
 // db, table, col, relation
 // send to output
 function dbMeta(databaseName, finalClb) {
@@ -94,12 +136,11 @@ function dbMeta(databaseName, finalClb) {
         reduceColumnFeatureSize(dbRelationMapping, (err, colList) => {
           callback(null, colList);
         })
-      }
-      /*
+      },      
       function (dbList, callback) {
         // write to database
+        writeToDB(dbList, (err, rslt)=>callback(err, rslt));
       },
-      */
     ],
     (err, rslt) => {
       if (err) {
@@ -114,3 +155,7 @@ function dbMeta(databaseName, finalClb) {
 }
 
 module.exports = dbMeta;
+
+
+// https://knexjs.org/guide/
+// https://hiddentao.github.io/squel/
