@@ -11,8 +11,6 @@ const knex = require("../db_op/connection_pool_sql_to_application");
 function getColumnMatch(columnList, colRoot, clbMain) {
   async.map(columnList, (col, clb) => {
     if(columnRelation(colRoot, col)) {
-      console.log(colRoot.COLUMN_NAME + ' ' + colRoot.COLUMN_NAME);
-      console.log(col.DATA_TYPE + ' ' + col.DATA_TYPE);
       clb(null, col);
     } else {
       clb(null, {});
@@ -75,17 +73,18 @@ function reduceColumnFeatureSize(colList, clbMain) {
 }
 
 function writeToDB(dbList, finalClb) {
+  console.log(dbList[0].database_name);
   async.waterfall([
     function(callback) {
       // create database record
       knex('database_meta').insert({database_name: dbList[0].database_name}).then((err, rslt) => {
+        console.log('Knex Insert');
         if(err) {
           console.log('Error');
           console.log(err);
           callback(err, null);
         } else {
           console.log('Insert ID');
-          console.log(rslt);
           callback(null, rslt);
         }
       });
@@ -144,7 +143,7 @@ function dbMeta(databaseName, finalClb) {
     ],
     (err, rslt) => {
       if (err) {
-        console.log("There was an error");
+        console.log("There was an error! Before returning to browser");
         finalClb(true, { error: "Some error occurred" });
       } else {
         console.log("Got the result");
