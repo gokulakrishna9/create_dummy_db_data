@@ -3,6 +3,10 @@ const async = require("async");
 const { getDBSchema } = require("../db_op/db_op");
 const { columnRelation } = require("../util/string_functions");
 const knex = require("../db_op/connection_pool_sql_to_application");
+const {
+  combinePropertyValues,
+  arrayOfObjectsToObjectOfObjects,
+} = require("../util/list_functions");
 //const knexCDDD = require("../db_op/connection_pool_sql_to_application");
 /**
  {"TABLE_CATALOG":"def","TABLE_SCHEMA":"health4all","TABLE_NAME":"activity_done","COLUMN_NAME":"activity_done_id","ORDINAL_POSITION":1,"COLUMN_DEFAULT":null,"IS_NULLABLE":"NO","DATA_TYPE":"int","CHARACTER_MAXIMUM_LENGTH":null,"CHARACTER_OCTET_LENGTH":null,"NUMERIC_PRECISION":10,"NUMERIC_SCALE":0,"DATETIME_PRECISION":null,"CHARACTER_SET_NAME":null,"COLLATION_NAME":null,"COLUMN_TYPE":"int","COLUMN_KEY":"PRI","EXTRA":"auto_increment","PRIVILEGES":"select,insert,update,references","COLUMN_COMMENT":"","GENERATION_EXPRESSION":"","SRS_ID":null,"relatedTo":[]},
@@ -148,18 +152,26 @@ function writeToDB(columnList, finalClb) {
         async.map(
           columnList,
           (col, clb) => {
+            console.log('Table Name');
+            console.log(col.table_name);
             let table = tableList[col.table_name];
             knex("column_meta")
               .insert({
                 ...col,
                 table_id: table.table_id,
                 database_id: table.database_id,
-              })
+              }) 
               .then((columnID) => {
-                clb(null, {[col.column_name+'_'+table.table_id]:{
-                  ...col,
-                  column_id: columnID,
-                }});
+                let propertyValue = combinePropertyValues(col, [
+                  "column_name",
+                  "table_id",
+                ]);
+                clb(null, {
+                  [propertyValue]: {
+                    ...col,
+                    column_id: columnID,
+                  },
+                });
               });
           },
           (err, columnList) => {
