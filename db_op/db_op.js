@@ -5,10 +5,9 @@ exports.getDBSchema = function (dbName, callback) {
     .raw("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ?", [
       dbName,
     ])
-    .then((rslt) => {
-      console.log("Knex Error");
-      console.log(rslt);
+    .then((rslt) => {      
       console.log('Got Knex Result');
-      callback(null, rslt);
+      console.log(rslt[0][100]);      
+      callback(null, rslt[0]);
     });
 };
