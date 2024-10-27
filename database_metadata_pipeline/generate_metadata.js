@@ -130,66 +130,80 @@ function writeToDB(columnList, finalClb) {
               .insert(tbr)
               .then((tableID) => {
                 clb(null, {
-                  [tbr.table_name]: {
-                    table_id: tableID[0],
-                    database_id: databaseObject.database_name,
-                  },
+                  table_name: tbr.table_name,
+                  table_id: tableID[0],
+                  database_id: databaseObject.database_name,
                 });
               });
           },
           (err, tableList) => {
-            console.log("Inserted Table Records");
-            console.log(tableList);
-            callback(null, null);
+            // Map the table array to table Object
+            tableList = arrayOfObjectsToObjectOfObjects(
+              tableList,
+              "table_name"
+            );
+            callback(null, tableList);
           }
         );
       },
       function (tableList, callback) {
-        // map
-        /*
-        {table_id 	database_id 	column_name 	column_default 	is_nullable 	data_type 	character_maximum_length 	numeric_precision 	numeric_scale 	column_type 	column_key 	extra}
-        */
         async.map(
           columnList,
           (col, clb) => {
-            console.log('Table Name');
-            console.log(col.table_name);
             let table = tableList[col.table_name];
+            let colR = {
+              ...col,
+              table_id: table.table_id,
+              database_id: table.database_id,
+            };
+            delete colR.related_to;
+            delete colR.table_name;
+            delete colR.table_schema;
             knex("column_meta")
-              .insert({
-                ...col,
-                table_id: table.table_id,
-                database_id: table.database_id,
-              }) 
+              .insert(colR)
               .then((columnID) => {
                 let propertyValue = combinePropertyValues(col, [
                   "column_name",
                   "table_id",
                 ]);
                 clb(null, {
-                  [propertyValue]: {
-                    ...col,
-                    column_id: columnID,
-                  },
+                  ...col,
+                  column_id: columnID[0],
                 });
               });
           },
           (err, columnList) => {
             console.log("Column List");
+            columnList = arrayOfObjectsToObjectOfObjects(
+              columnList,
+              ["column_name", "table_name", "table_schema"]
+            );
             callback(null, columnList);
           }
         );
       },
-      /*
-    function(callback, columnList) {
-      // create relation records
-      async.map(columnList, (db, clb), (err, columnList) => {
+      function (columnList, callback) {
+        // create relation records
+        console.log(columnList);
+        // for each column in column list find relation column
+        async.map(columnList, (col, colLClb)=>{
+          if(col.related_to.length == 0) {
+            colLClb(null, col);
+            return;
+          }          
+          async.map(co.related_to, (rt, crClb)=>{
+            let rtColPrp = combinePropertyValues(col, ["column_name", "table_name", "table_schema"]);
+            
+          }, (err, crelList) => {
+
+          });
+        }, (err, relationList) => {
+
+        });
         callback(null, columnList);
-      });
-    }
-    */
+      },
     ],
-    (err, rslt) => {
+    (err, columnList) => {
       finalClb(null, columnList);
     }
   );

@@ -2,19 +2,19 @@ function combinePropertyValues(objectC, genericPropertyName) {
   if (Array.isArray(genericPropertyName) == true) {
     let propV = genericPropertyName.map((pn) => {
       return objectC[pn];
-    }).join('_');
+    }).join('---');
     return propV;
   } else {
-    return objectC[pn];
+    return objectC[genericPropertyName];
   }
 }
 
 function arrayOfObjectsToObjectOfObjects(arrayList, genericPropertyName) {
-  return arrayList.map((ae) => {
+  return arrayList.reduce((fnlObj, ae) => {
     let valueProperty = combinePropertyValues(ae, genericPropertyName);
-    return { [valueProperty]: ae };
-  });
+    return { [valueProperty]: ae, ...fnlObj };
+  }, {});
 }
 
-module.exports = arrayOfObjectsToObjectOfObjects;
-module.exports = combinePropertyValues;
+exports.arrayOfObjectsToObjectOfObjects = arrayOfObjectsToObjectOfObjects;
+exports.combinePropertyValues = combinePropertyValues;
