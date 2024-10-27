@@ -174,33 +174,58 @@ function writeToDB(columnList, finalClb) {
           },
           (err, columnList) => {
             console.log("Column List");
-            columnList = arrayOfObjectsToObjectOfObjects(
-              columnList,
-              ["column_name", "table_name", "table_schema"]
-            );
+            columnList = arrayOfObjectsToObjectOfObjects(columnList, [
+              "column_name",
+              "table_name",
+              "table_schema",
+            ]);
             callback(null, columnList);
           }
         );
       },
       function (columnList, callback) {
         // create relation records
-        console.log(columnList);
         // for each column in column list find relation column
-        async.map(columnList, (col, colLClb)=>{
-          if(col.related_to.length == 0) {
-            colLClb(null, col);
-            return;
-          }          
-          async.map(co.related_to, (rt, crClb)=>{
-            let rtColPrp = combinePropertyValues(col, ["column_name", "table_name", "table_schema"]);
-            
-          }, (err, crelList) => {
-
-          });
-        }, (err, relationList) => {
-
-        });
-        callback(null, columnList);
+        async.map(
+          columnList,
+          (col, colLClb) => {
+            if (col.related_to.length == 0) {
+              colLClb(null, { ...col, related_to: [] });
+              return;
+            }
+            /*relation_meta: relation_meta_id, column_one_id, column_two_id, relation_type_id */
+            async.map(
+              col.related_to,
+              (rt, crClb) => {
+                let rtColPrp = combinePropertyValues(rt, [
+                  "column_name",
+                  "table_name",
+                  "table_schema",
+                ]);
+                let relatedCol = columnList[rtColPrp];
+                knex("relation_meta")
+                  .insert({
+                    column_one_id: col.column_id,
+                    column_two_id: relatedCol.column_id,
+                  })
+                  .then((relationID) => {
+                    crClb(null, {
+                      relation_id: relationID[0],
+                      ...rt,
+                    });
+                  });
+              },
+              (err, crelList) => {
+                colLClb(null, { ...col, related_to: crelList });
+              }
+            );
+          },
+          (err, columnList) => {
+            console.log("Column with relation");
+            console.log(columnList);
+            callback(null, columnList);
+          }
+        );
       },
     ],
     (err, columnList) => {
